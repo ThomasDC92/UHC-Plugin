@@ -1,11 +1,11 @@
 package dev.thomasdc.uhcplugin;
 
 import dev.thomasdc.uhcplugin.commands.*;
-import dev.thomasdc.uhcplugin.events.OnEntityDamage;
-import dev.thomasdc.uhcplugin.events.OnPlayerDeath;
-import dev.thomasdc.uhcplugin.events.OnPlayerLeave;
+import dev.thomasdc.uhcplugin.events.*;
 import dev.thomasdc.uhcplugin.models.Kit;
 import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,10 +26,9 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public final class UHCPlugin extends JavaPlugin {
-    //TODO ADD KITS
-    //TODO ADD LEADERBOARDS
     //TODO ADD EPIC ITEMS
     //TODO HAVE FUN
 
@@ -41,6 +40,7 @@ public final class UHCPlugin extends JavaPlugin {
     public static int maxGameTimeInMinutes = 40;
     public static int grazePeriodInMinutes = 10;
     public static boolean eventActive = false;
+    public FileConfiguration leaderboard;
 
     @Override
     public void onEnable() {
@@ -49,6 +49,8 @@ public final class UHCPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new OnPlayerDeath(), this);
         getServer().getPluginManager().registerEvents(new OnPlayerLeave(), this);
         getServer().getPluginManager().registerEvents(new EventKit(), this);
+        getServer().getPluginManager().registerEvents(new OnPlayerJoin(this), this);
+        getServer().getPluginManager().registerEvents(new OnFoodLevelChange(), this);
 
         //register commands
         getCommand("startEvent").setExecutor(new StartEvent(this));
@@ -61,6 +63,18 @@ public final class UHCPlugin extends JavaPlugin {
         getCommand("getCurrentKit").setExecutor(new GetCurrentKit());
         //misc
         initializeKits();
+        createLeaderboardFile();
+
+
+        //loop
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if(!eventActive){
+                    updateScoreboard();
+                }
+            }
+        }.runTaskTimer(this, 0L, 20L);
     }
 
 
@@ -78,7 +92,7 @@ public final class UHCPlugin extends JavaPlugin {
             p.teleport(getSpawnLocation(world));
             p.addPotionEffect(PotionEffectType.SPEED.createEffect(grazePeriodInMinutes * 60 * 20, 1));
             p.addPotionEffect(PotionEffectType.FAST_DIGGING.createEffect(grazePeriodInMinutes * 60 * 20, 1));
-            p.setAbsorptionAmount(10);
+            p.setAbsorptionAmount(20);
             if(eventPlayers.get(p) != null){
                 for (ItemStack item: eventPlayers.get(p).getItems()) {
                     p.getInventory().addItem(item);
@@ -127,12 +141,13 @@ public final class UHCPlugin extends JavaPlugin {
                     this.cancel();
                 }
 
-//                if(alivePlayers.size() == 1){
-//                    Bukkit.broadcastMessage("Game over! " + alivePlayers.get(0).getName() + " won!");
-//                    System.out.println("game ended by player win");
-//                    endEvent();
-//                    this.cancel();
-//                }
+                if(alivePlayers.size() == 1){
+                    Bukkit.broadcastMessage("Game over! " + alivePlayers.get(0).getName() + " won!");
+                    System.out.println("game ended by player win");
+                    leaderboard.set(alivePlayers.get(0).getUniqueId().toString(), leaderboard.getInt(alivePlayers.get(0).getUniqueId().toString()) + 1);
+                    endEvent();
+                    this.cancel();
+                }
 
                 if (timeLeft <= 0) {
                     Bukkit.broadcastMessage("Time ran out!");
@@ -201,6 +216,29 @@ public final class UHCPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        try {
+            leaderboard.save(new File(getDataFolder(), "leaderboard.yml"));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+
+    public void updateScoreboard() {
+        for (Player p : getServer().getOnlinePlayers()) {
+            Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+            Objective obj = board.registerNewObjective("UHC", "dummy", ChatColor.RED + "UHC");
+            obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+            List<String> topPlayers = new ArrayList<>();
+            for (String key : leaderboard.getKeys(false)) {
+                topPlayers.add(key);
+            }
+            topPlayers.sort((o1, o2) -> leaderboard.getInt(o2) - leaderboard.getInt(o1));
+            for (int i = 0; i < 5 && i < topPlayers.size(); i++) {
+                obj.getScore(ChatColor.GRAY.toString() + (i + 1) + ". " + ChatColor.WHITE.toString() + Bukkit.getOfflinePlayer(UUID.fromString(topPlayers.get(i))).getName() + ": " + ChatColor.GOLD.toString() + leaderboard.getInt(topPlayers.get(i))).setScore(6 - i);
+            }
+            p.setScoreboard(board);
+        }
     }
 
 
@@ -260,5 +298,10 @@ public final class UHCPlugin extends JavaPlugin {
         icon.setItemMeta(meta);
 
         return icon;
+    }
+
+    public void createLeaderboardFile(){
+        File dataFile = new File(this.getDataFolder(), "leaderboard.yml");
+        leaderboard = YamlConfiguration.loadConfiguration(dataFile);
     }
 }

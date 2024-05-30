@@ -12,6 +12,10 @@ public class RemovePlayer implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player){
             if(command.getName().equals("removePlayer")){
+                if(!sender.isOp()){
+                    sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                    return true;
+                }
                 if(args.length == 0){
                     sender.sendMessage(ChatColor.RED + "Please specify a player to remove!");
                     return true;

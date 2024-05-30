@@ -8,6 +8,7 @@ public class OnFoodLevelChange implements Listener {
 
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
+        event.getEntity().sendMessage("Your food level is changing");
         event.setCancelled(true);
     }
 }
