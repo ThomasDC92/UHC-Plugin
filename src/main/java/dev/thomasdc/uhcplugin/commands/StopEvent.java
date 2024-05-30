@@ -13,12 +13,13 @@ public class StopEvent implements CommandExecutor {
     public StopEvent(UHCPlugin plugin) {
         this.plugin = plugin;
     }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(sender instanceof Player){
-            if(command.getName().equals("stopEvent")){
+        if (sender instanceof Player) {
+            if (command.getName().equals("stopEvent")) {
                 Player p = (Player) sender;
-                if(UHCPlugin.eventActive) UHCPlugin.eventActive = false;
+                if (UHCPlugin.eventActive) UHCPlugin.eventActive = false;
             }
         }
 

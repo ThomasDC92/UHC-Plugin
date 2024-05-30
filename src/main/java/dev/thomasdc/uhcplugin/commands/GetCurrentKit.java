@@ -9,12 +9,12 @@ import org.bukkit.entity.Player;
 public class GetCurrentKit implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(sender instanceof Player){
-            if(command.getName().equals("getCurrentKit")){
+        if (sender instanceof Player) {
+            if (command.getName().equals("getCurrentKit")) {
                 Player p = (Player) sender;
-                if(UHCPlugin.eventPlayers.containsKey(p)){
+                if (UHCPlugin.eventPlayers.containsKey(p)) {
                     p.sendMessage("You have selected the " + UHCPlugin.eventPlayers.get(p).getName() + " kit");
-                }else{
+                } else {
                     p.sendMessage("You have not selected a kit yet");
                 }
             }

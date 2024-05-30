@@ -12,7 +12,7 @@ public class AddPlayer implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player){
             if(command.getName().equals("addPlayer")){
-                if(!sender.isOp()){
+                if (!sender.isOp()) {
                     sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
                     return true;
                 }

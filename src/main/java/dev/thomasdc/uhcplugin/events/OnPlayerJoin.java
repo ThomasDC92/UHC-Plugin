@@ -13,15 +13,15 @@ import java.io.File;
 @RequiredArgsConstructor
 public class OnPlayerJoin implements Listener {
     private final UHCPlugin plugin;
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if(plugin.leaderboard.getString(player.getUniqueId().toString()) == null){
+        if (plugin.leaderboard.getString(player.getUniqueId().toString()) == null) {
             plugin.leaderboard.set(player.getUniqueId().toString(), 0);
-            try{
+            try {
                 plugin.leaderboard.save(new File(plugin.getDataFolder(), "leaderboard.yml"));
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }

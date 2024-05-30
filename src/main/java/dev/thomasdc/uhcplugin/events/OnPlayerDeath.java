@@ -11,7 +11,7 @@ public class OnPlayerDeath implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player p = event.getEntity();
-        if(UHCPlugin.alivePlayers.contains(p)){
+        if (UHCPlugin.alivePlayers.contains(p)) {
             UHCPlugin.alivePlayers.remove(p);
             p.setGameMode(GameMode.SPECTATOR);
             System.out.println("Player " + p.getName() + " died!");

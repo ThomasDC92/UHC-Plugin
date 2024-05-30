@@ -10,9 +10,9 @@ public class OnEntityDamage implements Listener {
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
-        if(event.getEntity() instanceof Player){
+        if (event.getEntity() instanceof Player) {
             Player p = (Player) event.getEntity();
-            if(UHCPlugin.noFallDamage.contains(p)){
+            if (UHCPlugin.noFallDamage.contains(p)) {
                 UHCPlugin.noFallDamage.remove(p);
                 event.setCancelled(true);
             }

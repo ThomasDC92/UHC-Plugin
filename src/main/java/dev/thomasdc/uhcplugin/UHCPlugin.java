@@ -32,7 +32,7 @@ public final class UHCPlugin extends JavaPlugin {
     //TODO ADD EPIC ITEMS
     //TODO HAVE FUN
 
-    public static HashMap<Player,Kit> eventPlayers = new HashMap<>();
+    public static HashMap<Player, Kit> eventPlayers = new HashMap<>();
     public static List<Player> alivePlayers = new ArrayList<>();
     public static List<Player> noFallDamage = new ArrayList<>();
     public static List<Kit> kits = new ArrayList<>();
@@ -70,7 +70,7 @@ public final class UHCPlugin extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if(!eventActive){
+                if (!eventActive) {
                     updateScoreboard();
                 }
             }
@@ -83,9 +83,7 @@ public final class UHCPlugin extends JavaPlugin {
 
         World world = generateWorld();
 
-
         UHCPlugin.noFallDamage = new ArrayList<>(UHCPlugin.eventPlayers.keySet());
-
         UHCPlugin.alivePlayers = new ArrayList<>(UHCPlugin.eventPlayers.keySet());
 
         for (Player p : UHCPlugin.eventPlayers.keySet()) {
@@ -93,8 +91,8 @@ public final class UHCPlugin extends JavaPlugin {
             p.addPotionEffect(PotionEffectType.SPEED.createEffect(grazePeriodInMinutes * 60 * 20, 1));
             p.addPotionEffect(PotionEffectType.FAST_DIGGING.createEffect(grazePeriodInMinutes * 60 * 20, 1));
             p.setAbsorptionAmount(20);
-            if(eventPlayers.get(p) != null){
-                for (ItemStack item: eventPlayers.get(p).getItems()) {
+            if (eventPlayers.get(p) != null) {
+                for (ItemStack item : eventPlayers.get(p).getItems()) {
                     p.getInventory().addItem(item);
                 }
             }
@@ -126,7 +124,7 @@ public final class UHCPlugin extends JavaPlugin {
                 } else if (grazeTime == 0) {
                     grazeTime = -1;
                     world.setPVP(true);
-                    world.getWorldBorder().setSize(100, (maxGameTimeInMinutes - grazePeriodInMinutes)*60L*20);
+                    world.getWorldBorder().setSize(100, (maxGameTimeInMinutes - grazePeriodInMinutes) * 60L * 20);
                     for (Player p : alivePlayers) {
                         p.sendMessage("Graze period has ended, pvp is now enabled and the borders have started moving toward 0,0!");
                         p.setAbsorptionAmount(0);
@@ -141,7 +139,7 @@ public final class UHCPlugin extends JavaPlugin {
                     this.cancel();
                 }
 
-                if(alivePlayers.size() == 1){
+                if (alivePlayers.size() == 1) {
                     Bukkit.broadcastMessage("Game over! " + alivePlayers.get(0).getName() + " won!");
                     System.out.println("game ended by player win");
                     leaderboard.set(alivePlayers.get(0).getUniqueId().toString(), leaderboard.getInt(alivePlayers.get(0).getUniqueId().toString()) + 1);
@@ -199,8 +197,8 @@ public final class UHCPlugin extends JavaPlugin {
         }
         Bukkit.getServer().unloadWorld(world, false);
         File file = new File("uhc_world");
-        if(file.exists()){
-            try{
+        if (file.exists()) {
+            try {
                 FileUtils.deleteDirectory(file);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
@@ -288,8 +286,8 @@ public final class UHCPlugin extends JavaPlugin {
     }
 
 
-    public ItemStack generateIcon(String name, Material item, ChatColor color){
-        if(color == null){
+    public ItemStack generateIcon(String name, Material item, ChatColor color) {
+        if (color == null) {
             color = ChatColor.WHITE;
         }
         ItemStack icon = new ItemStack(item);
@@ -300,7 +298,7 @@ public final class UHCPlugin extends JavaPlugin {
         return icon;
     }
 
-    public void createLeaderboardFile(){
+    public void createLeaderboardFile() {
         File dataFile = new File(this.getDataFolder(), "leaderboard.yml");
         leaderboard = YamlConfiguration.loadConfiguration(dataFile);
     }

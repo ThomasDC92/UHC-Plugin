@@ -9,12 +9,12 @@ import org.bukkit.entity.Player;
 public class GetPlayers implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(sender instanceof Player){
-            if(command.getName().equals("getPlayers")){
+        if (sender instanceof Player) {
+            if (command.getName().equals("getPlayers")) {
                 Player p = (Player) sender;
                 String output = "Players in the event:\n";
                 System.out.println(UHCPlugin.eventPlayers.keySet());
-                for(Player player : UHCPlugin.eventPlayers.keySet()){
+                for (Player player : UHCPlugin.eventPlayers.keySet()) {
                     output += player.getName() + ",";
                 }
                 p.sendMessage(output);
