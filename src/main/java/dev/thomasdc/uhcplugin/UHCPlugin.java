@@ -274,8 +274,8 @@ public final class UHCPlugin extends JavaPlugin {
         ItemStack fishingRod = new ItemStack(Material.FISHING_ROD);
         ItemMeta fishingRodMeta = fishingRod.getItemMeta();
         fishingRodMeta.setDisplayName(ChatColor.GREEN + "Fishboy's Rod");
-        fishingRodMeta.addEnchant(Enchantment.LUCK, 5, true);
-        fishingRodMeta.addEnchant(Enchantment.LURE, 5, true);
+        fishingRodMeta.addEnchant(Enchantment.LUCK, 10, true);
+        fishingRodMeta.addEnchant(Enchantment.LURE, 10, true);
         fishingRodMeta.setUnbreakable(true);
         fishingRod.setItemMeta(fishingRodMeta);
 
