@@ -277,6 +277,7 @@ public final class UHCPlugin extends JavaPlugin {
         fishingRodMeta.addEnchant(Enchantment.LUCK, 5, true);
         fishingRodMeta.addEnchant(Enchantment.LURE, 5, true);
         fishingRodMeta.setUnbreakable(true);
+        fishingRod.setItemMeta(fishingRodMeta);
 
 
         kits.add(Kit.builder()
