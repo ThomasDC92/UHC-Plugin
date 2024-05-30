@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="UHCPlugin">
+    <output-path>$USER_HOME$/Desktop/RandomOrAbandonedProjects/MC server/1.20.1 server uhc/plugins</output-path>
+    <root id="archive" name="UHCPlugin.jar">
+      <element id="module-output" name="UHCPlugin" />
+    </root>
+  </artifact>
+</component>

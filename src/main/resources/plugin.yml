@@ -1,0 +1,38 @@
+name: UHCPlugin
+version: '${project.version}'
+main: dev.thomasdc.uhcplugin.UHCPlugin
+api-version: '1.20'
+
+
+commands:
+  startEvent:
+    description: Start a UHC event
+    usage: /startEvent
+
+  addPlayer:
+    description: Add a player to the UHC event
+    usage: /addPlayer <player>
+
+  removePlayer:
+    description: Remove a player from the UHC event
+    usage: /removePlayer <player>
+
+  getPlayers:
+    description: Get all players in the UHC event
+    usage: /getPlayers
+
+  goto:
+    description: Teleport to a player while in spectator mode
+    usage: /goto <player>
+
+  stopEvent:
+    description: Stop the UHC event
+    usage: /stopEvent
+
+  eventKit:
+    description: Give the player the event kit
+    usage: /eventKit
+
+  getCurrentKit:
+    description: Get the current kit
+    usage: /getCurrentKit
