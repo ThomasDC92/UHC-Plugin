@@ -3,6 +3,8 @@ version: '${project.version}'
 main: dev.thomasdc.uhcplugin.UHCPlugin
 api-version: '1.20'
 
+depend:
+  - NBTAPI
 
 commands:
   startEvent:
@@ -30,9 +32,13 @@ commands:
     usage: /stopEvent
 
   eventKit:
-    description: Give the player the event kit
+    description: Choose a kit for the event
     usage: /eventKit
 
   getCurrentKit:
-    description: Get the current kit
+    description: Get the chosen kit
     usage: /getCurrentKit
+
+  customItems:
+    description: Check the recipes for custom items
+    usage: /customItems

@@ -43,7 +43,7 @@ public class EventKit implements CommandExecutor, Listener {
     }
 
     @EventHandler
-    public void onInventoryClick(final InventoryClickEvent e) {
+    public void onInventoryClick(InventoryClickEvent e) {
         if (e.getView().getOriginalTitle().equals(ChatColor.RED + "Choose a kit for the next event")) {
             e.setCancelled(true);
             if (e.getCurrentItem() == null) return;
@@ -62,7 +62,7 @@ public class EventKit implements CommandExecutor, Listener {
     }
 
     @EventHandler
-    public void onInventoryClick(final InventoryDragEvent e) {
+    public void onInventoryClick(InventoryDragEvent e) {
         if (e.getView().getOriginalTitle().equals(ChatColor.RED + "Choose a kit for the next event"))
             e.setCancelled(true);
     }

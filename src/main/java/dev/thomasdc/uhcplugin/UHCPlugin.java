@@ -2,13 +2,19 @@ package dev.thomasdc.uhcplugin;
 
 import dev.thomasdc.uhcplugin.commands.*;
 import dev.thomasdc.uhcplugin.events.*;
+import dev.thomasdc.uhcplugin.models.CustomRecipes;
 import dev.thomasdc.uhcplugin.models.Kit;
 import org.bukkit.*;
+import org.bukkit.block.Biome;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.BiomeProvider;
+import org.bukkit.generator.WorldInfo;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
@@ -19,17 +25,16 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.FileUtil;
 import org.codehaus.plexus.util.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Time;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public final class UHCPlugin extends JavaPlugin {
     //TODO ADD EPIC ITEMS
+    //TODO SHADE NBT API PLUGIN INSTEAD OF PROVIDING THE JAR
     //TODO HAVE FUN
 
     public static HashMap<Player, Kit> eventPlayers = new HashMap<>();
@@ -42,6 +47,10 @@ public final class UHCPlugin extends JavaPlugin {
     public static boolean eventActive = false;
     public FileConfiguration leaderboard;
 
+    public static UHCPlugin getInstance() {
+        return getPlugin(UHCPlugin.class);
+    }
+
     @Override
     public void onEnable() {
         //register events
@@ -51,6 +60,11 @@ public final class UHCPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EventKit(), this);
         getServer().getPluginManager().registerEvents(new OnPlayerJoin(this), this);
         getServer().getPluginManager().registerEvents(new OnFoodLevelChange(), this);
+        getServer().getPluginManager().registerEvents(new OnProjectileLaunch(), this);
+        getServer().getPluginManager().registerEvents(new OnBlockBreak(), this);
+        getServer().getPluginManager().registerEvents(new OnWeatherChange(), this);
+        getServer().getPluginManager().registerEvents(new CustomItems(), this);
+
 
         //register commands
         getCommand("startEvent").setExecutor(new StartEvent(this));
@@ -61,9 +75,13 @@ public final class UHCPlugin extends JavaPlugin {
         getCommand("goto").setExecutor(new GoToPlayer());
         getCommand("eventKit").setExecutor(new EventKit());
         getCommand("getCurrentKit").setExecutor(new GetCurrentKit());
+        getCommand("customItems").setExecutor(new CustomItems());
+
         //misc
         initializeKits();
         createLeaderboardFile();
+        CustomRecipes customRecipes = new CustomRecipes(this);
+        customRecipes.registerRecipes();
 
 
         //loop
@@ -90,7 +108,25 @@ public final class UHCPlugin extends JavaPlugin {
             p.teleport(getSpawnLocation(world));
             p.addPotionEffect(PotionEffectType.SPEED.createEffect(grazePeriodInMinutes * 60 * 20, 1));
             p.addPotionEffect(PotionEffectType.FAST_DIGGING.createEffect(grazePeriodInMinutes * 60 * 20, 1));
-            p.setAbsorptionAmount(20);
+            p.setAbsorptionAmount(20.0);
+            p.setExp(0);
+            p.setLevel(0);
+//            CustomRecipes.keys.forEach(key -> {
+//                p.discoverRecipe(new NamespacedKey(this, key));
+//            });
+            kits.clear();
+            initializeKits();
+            Iterator<Recipe> recipes = Bukkit.recipeIterator();
+            while (recipes.hasNext()) {
+                Recipe recipe = recipes.next();
+                if(recipe instanceof Keyed){
+                    p.undiscoverRecipe(((Keyed) recipe).getKey());
+                }
+            }
+            for (String key: CustomRecipes.keys) {
+                p.discoverRecipe(new NamespacedKey(this, key));
+
+            }
             if (eventPlayers.get(p) != null) {
                 for (ItemStack item : eventPlayers.get(p).getItems()) {
                     p.getInventory().addItem(item);
@@ -106,6 +142,7 @@ public final class UHCPlugin extends JavaPlugin {
             public void run() {
                 //game logic
                 timeLeft--;
+                world.setTime(0L);
                 if (grazeTime > 0) {
                     grazeTime--;
                 }
@@ -139,13 +176,13 @@ public final class UHCPlugin extends JavaPlugin {
                     this.cancel();
                 }
 
-                if (alivePlayers.size() == 1) {
-                    Bukkit.broadcastMessage("Game over! " + alivePlayers.get(0).getName() + " won!");
-                    System.out.println("game ended by player win");
-                    leaderboard.set(alivePlayers.get(0).getUniqueId().toString(), leaderboard.getInt(alivePlayers.get(0).getUniqueId().toString()) + 1);
-                    endEvent();
-                    this.cancel();
-                }
+//                if (alivePlayers.size() == 1) {
+//                    Bukkit.broadcastMessage("Game over! " + alivePlayers.get(0).getName() + " won!");
+//                    System.out.println("game ended by player win");
+//                    leaderboard.set(alivePlayers.get(0).getUniqueId().toString(), leaderboard.getInt(alivePlayers.get(0).getUniqueId().toString()) + 1);
+//                    endEvent();
+//                    this.cancel();
+//                }
 
                 if (timeLeft <= 0) {
                     Bukkit.broadcastMessage("Time ran out!");
@@ -165,7 +202,44 @@ public final class UHCPlugin extends JavaPlugin {
 
 
     public World generateWorld() {
-        World world = WorldCreator.name("uhc_world").createWorld();
+        World world = WorldCreator.name("uhc_world")
+                .biomeProvider(
+                        new BiomeProvider(){
+                            @Override
+                            public @NotNull Biome getBiome(@NotNull WorldInfo worldInfo, int i, int i1, int i2) {
+                                List<Biome> biomes = List.of(
+                                        Biome.PLAINS,
+                                        Biome.JUNGLE,
+                                        Biome.BAMBOO_JUNGLE,
+                                        Biome.DARK_FOREST,
+                                        Biome.CHERRY_GROVE,
+                                        Biome.FOREST,
+                                        Biome.SWAMP,
+                                        Biome.SAVANNA,
+                                        Biome.FLOWER_FOREST
+                                );
+                                Random random = new Random();
+                                return biomes.get(random.nextInt(biomes.size()));
+                            }
+
+                            @Override
+                            public @NotNull List<Biome> getBiomes(@NotNull WorldInfo worldInfo) {
+                                List<Biome> biomes = List.of(
+                                        Biome.PLAINS,
+                                        Biome.JUNGLE,
+                                        Biome.BAMBOO_JUNGLE,
+                                        Biome.DARK_FOREST,
+                                        Biome.CHERRY_GROVE,
+                                        Biome.FOREST,
+                                        Biome.SWAMP,
+                                        Biome.SAVANNA,
+                                        Biome.FLOWER_FOREST
+                                );
+                                return biomes;
+                            }
+                        }
+                )
+                .createWorld();
         world.getWorldBorder().setSize(500);
         world.getWorldBorder().setCenter(0, 0);
         world.setPVP(false);
@@ -194,6 +268,7 @@ public final class UHCPlugin extends JavaPlugin {
             p.setGameMode(GameMode.SURVIVAL);
             p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
             p.spigot().respawn();
+            p.setAbsorptionAmount(0);
         }
         Bukkit.getServer().unloadWorld(world, false);
         File file = new File("uhc_world");
@@ -267,15 +342,15 @@ public final class UHCPlugin extends JavaPlugin {
         kits.add(Kit.builder().name("Enderman")
                 .icon(generateIcon("Enderman", Material.ENDER_PEARL, ChatColor.DARK_PURPLE))
                 .items(List.of(
-                        new ItemStack(Material.ENDER_PEARL, 8)
+                        new ItemStack(Material.ENDER_PEARL, (int)(Math.random()*4)+4)
                 ))
                 .build());
 
         ItemStack fishingRod = new ItemStack(Material.FISHING_ROD);
         ItemMeta fishingRodMeta = fishingRod.getItemMeta();
         fishingRodMeta.setDisplayName(ChatColor.GREEN + "Fishboy's Rod");
-        fishingRodMeta.addEnchant(Enchantment.LUCK, 10, true);
-        fishingRodMeta.addEnchant(Enchantment.LURE, 10, true);
+        fishingRodMeta.addEnchant(Enchantment.LUCK, (int)(Math.random()*5)+15, true);
+        fishingRodMeta.addEnchant(Enchantment.LURE, (int)(Math.random()*5)+15, true);
         fishingRodMeta.setUnbreakable(true);
         fishingRod.setItemMeta(fishingRodMeta);
 
