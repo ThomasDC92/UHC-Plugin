@@ -119,3 +119,8 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij
 /target/
+/target
+/target/classes
+/target/classes/dev
+/target/classes/dev/thomasdc
+/target/classes/dev/thomasdc/uhcplugin
