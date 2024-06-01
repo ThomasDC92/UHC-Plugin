@@ -5,6 +5,7 @@ import dev.thomasdc.uhcplugin.events.*;
 import dev.thomasdc.uhcplugin.models.CustomRecipes;
 import dev.thomasdc.uhcplugin.models.Kit;
 import dev.thomasdc.uhcplugin.models.KitItems;
+import dev.thomasdc.uhcplugin.tasks.AlwaysDay;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -21,6 +22,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.*;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -85,6 +87,7 @@ public final class UHCPlugin extends JavaPlugin {
         createFiles();
         CustomRecipes customRecipes = new CustomRecipes(this);
         customRecipes.registerRecipes();
+        BukkitTask task = new AlwaysDay().runTaskTimer(this,0L,0L);
 
 
         //loop
@@ -145,7 +148,6 @@ public final class UHCPlugin extends JavaPlugin {
             public void run() {
                 //game logic
                 timeLeft--;
-                world.setTime(0L);
                 if (grazeTime > 0) {
                     grazeTime--;
                 }
@@ -212,8 +214,6 @@ public final class UHCPlugin extends JavaPlugin {
                             public @NotNull Biome getBiome(@NotNull WorldInfo worldInfo, int i, int i1, int i2) {
                                 List<Biome> biomes = List.of(
                                         Biome.PLAINS,
-                                        Biome.JUNGLE,
-                                        Biome.BAMBOO_JUNGLE,
                                         Biome.DARK_FOREST,
                                         Biome.CHERRY_GROVE,
                                         Biome.FOREST,
@@ -229,8 +229,6 @@ public final class UHCPlugin extends JavaPlugin {
                             public @NotNull List<Biome> getBiomes(@NotNull WorldInfo worldInfo) {
                                 List<Biome> biomes = List.of(
                                         Biome.PLAINS,
-                                        Biome.JUNGLE,
-                                        Biome.BAMBOO_JUNGLE,
                                         Biome.DARK_FOREST,
                                         Biome.CHERRY_GROVE,
                                         Biome.FOREST,
@@ -238,7 +236,7 @@ public final class UHCPlugin extends JavaPlugin {
                                         Biome.SAVANNA,
                                         Biome.FLOWER_FOREST
                                 );
-                                return biomes;
+                                return List.of(biomes.get(new Random().nextInt(biomes.size())));
                             }
                         }
                 )

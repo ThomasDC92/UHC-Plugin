@@ -10,8 +10,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class KitItems {
-    public ItemStack KETAMINE = new ItemStack(Material.POTION);
-    public ItemStack FISHBOYS_ROD = new ItemStack(Material.FISHING_ROD);
+    public static ItemStack KETAMINE = new ItemStack(Material.POTION);
+    public static ItemStack FISHBOYS_ROD = new ItemStack(Material.FISHING_ROD);
 
     public KitItems(){
         initializeKetamine();
@@ -20,10 +20,10 @@ public class KitItems {
 
     public void initializeKetamine(){
         PotionMeta ketamineMeta = (PotionMeta) KETAMINE.getItemMeta();
-        ketamineMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20*30, 1), true);
-        ketamineMeta.addCustomEffect(new PotionEffect(PotionEffectType.REGENERATION, 20*30, 2), true);
-        ketamineMeta.addCustomEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20*30, 1), true);
-        ketamineMeta.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 20*35, 1), true);
+        ketamineMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20*30, 0), true);
+        ketamineMeta.addCustomEffect(new PotionEffect(PotionEffectType.REGENERATION, 20*30, 1), true);
+        ketamineMeta.addCustomEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20*30, 0), true);
+        ketamineMeta.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 20*35, 0), true);
         ketamineMeta.setDisplayName(ChatColor.RED + "Ketamine");
         ketamineMeta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
         KETAMINE.setItemMeta(ketamineMeta);
