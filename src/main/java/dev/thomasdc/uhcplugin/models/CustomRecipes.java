@@ -31,6 +31,8 @@ public class CustomRecipes {
         put(Enchantment.DURABILITY, 3);
     }},"steves_pick", List.of(ChatColor.LIGHT_PURPLE.toString() + "Instantly melts ores!","(steve not included)"));
 
+
+
     public static List<ItemStack> items = List.of(
             STEVES_PICK,
             new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 1)

@@ -4,6 +4,7 @@ import dev.thomasdc.uhcplugin.commands.*;
 import dev.thomasdc.uhcplugin.events.*;
 import dev.thomasdc.uhcplugin.models.CustomRecipes;
 import dev.thomasdc.uhcplugin.models.Kit;
+import dev.thomasdc.uhcplugin.models.KitItems;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,9 +17,9 @@ import org.bukkit.generator.WorldInfo;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -35,6 +36,7 @@ import java.util.*;
 public final class UHCPlugin extends JavaPlugin {
     //TODO ADD EPIC ITEMS
     //TODO SHADE NBT API PLUGIN INSTEAD OF PROVIDING THE JAR
+    //TODO ADD CLASSES PLAYERS CAN CHOOSE
     //TODO HAVE FUN
 
     public static HashMap<Player, Kit> eventPlayers = new HashMap<>();
@@ -46,6 +48,7 @@ public final class UHCPlugin extends JavaPlugin {
     public static int grazePeriodInMinutes = 10;
     public static boolean eventActive = false;
     public FileConfiguration leaderboard;
+    public FileConfiguration playerClasses;
 
     public static UHCPlugin getInstance() {
         return getPlugin(UHCPlugin.class);
@@ -79,7 +82,7 @@ public final class UHCPlugin extends JavaPlugin {
 
         //misc
         initializeKits();
-        createLeaderboardFile();
+        createFiles();
         CustomRecipes customRecipes = new CustomRecipes(this);
         customRecipes.registerRecipes();
 
@@ -328,6 +331,7 @@ public final class UHCPlugin extends JavaPlugin {
     }
 
     public void initializeKits() {
+        KitItems kitItems = new KitItems();
         kits.add(Kit.builder()
                 .name("Gatherer")
                 .icon(generateIcon("Gatherer", Material.COBBLESTONE, ChatColor.GRAY))
@@ -346,19 +350,23 @@ public final class UHCPlugin extends JavaPlugin {
                 ))
                 .build());
 
-        ItemStack fishingRod = new ItemStack(Material.FISHING_ROD);
-        ItemMeta fishingRodMeta = fishingRod.getItemMeta();
-        fishingRodMeta.setDisplayName(ChatColor.GREEN + "Fishboy's Rod");
-        fishingRodMeta.addEnchant(Enchantment.LUCK, (int)(Math.random()*5)+15, true);
-        fishingRodMeta.addEnchant(Enchantment.LURE, (int)(Math.random()*5)+15, true);
-        fishingRodMeta.setUnbreakable(true);
-        fishingRod.setItemMeta(fishingRodMeta);
+
 
 
         kits.add(Kit.builder()
                 .name("Fishboy")
                 .icon(generateIcon("Fishboy", Material.FISHING_ROD, ChatColor.BLUE))
-                .items(List.of(fishingRod)).build());
+                .items(List.of(kitItems.FISHBOYS_ROD)).build());
+
+
+
+        kits.add(Kit.builder()
+                .name("Wizard's basement dweller")
+                .icon(generateIcon("Wizard's basement dweller", Material.BREWING_STAND, ChatColor.RED))
+                .items(List.of(
+                        kitItems.KETAMINE
+                )).build());
+
     }
 
 
@@ -374,8 +382,10 @@ public final class UHCPlugin extends JavaPlugin {
         return icon;
     }
 
-    public void createLeaderboardFile() {
-        File dataFile = new File(this.getDataFolder(), "leaderboard.yml");
-        leaderboard = YamlConfiguration.loadConfiguration(dataFile);
+    public void createFiles() {
+        File leaderBoardFile = new File(this.getDataFolder(), "leaderboard.yml");
+        File classesFile = new File(this.getDataFolder(), "playerclasses.yml");
+        leaderboard = YamlConfiguration.loadConfiguration(leaderBoardFile);
+        playerClasses = YamlConfiguration.loadConfiguration(classesFile);
     }
 }

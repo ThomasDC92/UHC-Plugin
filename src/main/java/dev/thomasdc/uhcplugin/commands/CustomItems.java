@@ -5,6 +5,7 @@ import dev.thomasdc.uhcplugin.models.CustomRecipes;
 import dev.thomasdc.uhcplugin.models.Kit;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 
@@ -33,11 +35,7 @@ public class CustomItems implements CommandExecutor, Listener {
         if (sender instanceof Player) {
             if (command.getName().equals("customItems")) {
                 Player p = (Player) sender;
-                inv.clear();
-                for (ItemStack item : CustomRecipes.items) {
-                    inv.addItem(item);
-                }
-                p.openInventory(inv);
+                openCustomItemsMenu(p);
             }
         }
 
@@ -53,7 +51,9 @@ public class CustomItems implements CommandExecutor, Listener {
             if (e.getCurrentItem().getItemMeta().getDisplayName() == null) return;
             Player p = (Player) e.getWhoClicked();
             p.closeInventory();
+
             recipeInv = Bukkit.createInventory(null, 27, ChatColor.RED + "Recipe");
+
             ShapedRecipe shapedRecipe = CustomRecipes.getRecipeShapeByItem(e.getCurrentItem());
             String[] shape = shapedRecipe.getShape();
             int[][] slots = {{2,3,4},{11,12,13},{20,21,22}} ;
@@ -64,10 +64,24 @@ public class CustomItems implements CommandExecutor, Listener {
             }
             recipeInv.setItem(16, e.getCurrentItem());
 
+            ItemStack item = new ItemStack(Material.BARRIER);
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName("Go back");
+            item.setItemMeta(meta);
+
+            recipeInv.setItem(0,item);
             p.openInventory(recipeInv);
         }
         if(e.getView().getOriginalTitle().equals(ChatColor.RED + "Recipe")){
             e.setCancelled(true);
+            if (e.getCurrentItem() == null) return;
+            if (e.getCurrentItem().getItemMeta() == null) return;
+            if (e.getCurrentItem().getItemMeta().getDisplayName() == null) return;
+            if(e.getCurrentItem().getType().equals(Material.BARRIER)){
+                Player p = (Player) e.getWhoClicked();
+                p.closeInventory();
+                openCustomItemsMenu(p);
+            }
         }
     }
 
@@ -78,5 +92,13 @@ public class CustomItems implements CommandExecutor, Listener {
 
         if(e.getView().getOriginalTitle().equals(ChatColor.RED + "Recipe"))
             e.setCancelled(true);
+    }
+
+    public void openCustomItemsMenu(Player p){
+        inv.clear();
+        for (ItemStack item : CustomRecipes.items) {
+            inv.addItem(item);
+        }
+        p.openInventory(inv);
     }
 }
